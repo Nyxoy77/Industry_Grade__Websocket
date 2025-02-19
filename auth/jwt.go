@@ -1,4 +1,4 @@
-package jwt
+package auth
 
 import (
 	"fmt"
@@ -11,15 +11,15 @@ import (
 func GenerateJWT(userId string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userId,
-		"exp":     time.Now().Add(time.Hour * 1).Unix(),
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(os.Getenv("SECRET_KEY"))
+	return token.SignedString([]byte(os.Getenv("SECRET_KEY")))
 }
 
 func ValidateJWT(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
-		return os.Getenv("SECRET_KEY"), nil
+		return ([]byte(os.Getenv("SECRET_KEY"))), nil
 	})
 	if err != nil || !token.Valid {
 		return "", fmt.Errorf("invalid token")
@@ -35,11 +35,11 @@ func ValidateJWT(tokenString string) (string, error) {
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", fmt.Errorf("Claims Invalid")
+		return "", fmt.Errorf("claims Invalid")
 	}
 	userID, ok := claims["user_id"].(string)
 	if !ok {
-		return "", fmt.Errorf("Claims Invalid")
+		return "", fmt.Errorf("claims Invalid")
 	}
 	return userID, nil
 }
