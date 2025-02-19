@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -23,7 +22,7 @@ func ValidateJWT(tokenString string) (string, error) {
 		return os.Getenv("SECRET_KEY"), nil
 	})
 	if err != nil || !token.Valid {
-		return "", fmt.Errorf("Invalid token")
+		return "", fmt.Errorf("invalid token")
 	}
 	// 1️⃣ Call jwt.Parse(tokenString, callback)
 	// 2️⃣ Extract Header, Payload, and Signature from JWT
