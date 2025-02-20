@@ -1,13 +1,13 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/nyxoy77/websocket/auth"
 )
 
 //Upgrader is a struct we cant use its functions without it being stored in an instance
@@ -39,48 +39,25 @@ var hub = Hub{
 	Unregister: make(chan *Client),
 }
 
-func RunHub() {
-	for {
-		select {
-		case client := <-hub.Register:
-			hub.mu.Lock()
-			hub.Clients[client.ID] = client
-			hub.mu.Unlock()
-		case client := <-hub.Unregister:
-			hub.mu.Lock()
-			delete(hub.Clients, client.ID)
-			close(client.Send)
-			hub.mu.Unlock()
-		case message := <-hub.Broadcast:
-			hub.mu.Lock()
-			for _, client := range hub.Clients {
-				select {
-				case client.Send <- message:
-				default:
-					delete(hub.Clients, client.ID)
-					close(client.Send)
-				}
-			}
-			hub.mu.Unlock()
-		}
-
-	}
-}
 func HandleWebSocketConnections(c *gin.Context) {
-	token := c.Query("token")
-	userID, err := auth.ValidateJWT(token)
-	if err != nil || userID == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Invalid token",
-		})
+	// token := c.Query("token")
+	// userID, err := auth.ValidateJWT(token)
+	// if err != nil || userID == "" {
+	// 	c.JSON(http.StatusUnauthorized, gin.H{
+	// 		"error": "Invalid token",
+	// 	})
+	// }
+	userID := c.Query("userID")
+	if userID == "" {
+		c.String(http.StatusUnauthorized, "Missing userID")
+		return
 	}
-
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println("Error upgrading the websocket ", err)
 		return
 	}
-
+	fmt.Println(userID)
 	client := &Client{ID: userID, Conn: conn, Send: make(chan []byte)}
 	hub.Register <- client
 	go ReadMessages(client)

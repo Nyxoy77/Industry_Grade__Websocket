@@ -14,6 +14,7 @@ func main() {
 	app := gin.Default()
 
 	// Define WebSocket route
+
 	app.GET("/ws", server.HandleWebSocketConnections)
 
 	// Start WebSocket hub
