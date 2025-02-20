@@ -42,16 +42,17 @@ var hub = Hub{
 
 func HandleWebSocketConnections(c *gin.Context) {
 	token := c.Query("token")
+	fmt.Println(token)
 	userID, err := auth.ValidateJWT(token)
 	if err != nil || userID == "" {
 		c.String(http.StatusUnauthorized, "Invalid JWT")
 		return
 	}
 
-	if userID == "" {
-		c.String(http.StatusUnauthorized, "Missing userID")
-		return
-	}
+	// if userID == "" {
+	// 	c.String(http.StatusUnauthorized, "Missing userID")
+	// 	return
+	// }
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println("Error upgrading the websocket ", err)

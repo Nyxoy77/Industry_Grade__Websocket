@@ -10,6 +10,10 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+type TokenS struct {
+	User_id string `json:"user_id" binding:"required"`
+}
+
 func GenerateJWT(userId string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userId,
@@ -47,14 +51,15 @@ func ValidateJWT(tokenString string) (string, error) {
 }
 
 func HandleJWT(c *gin.Context) {
-	var user_id string
-	if err := c.ShouldBindJSON(&user_id); err != nil {
+	var obj1 TokenS
+	if err := c.ShouldBindJSON(&obj1); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"errror": err,
 		})
 		return
 	}
-	token, err1 := GenerateJWT(user_id)
+	fmt.Println(obj1.User_id)
+	token, err1 := GenerateJWT(obj1.User_id)
 	if err1 != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"errror": err1,
