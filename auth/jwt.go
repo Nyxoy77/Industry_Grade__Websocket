@@ -2,9 +2,11 @@ package auth
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -42,4 +44,24 @@ func ValidateJWT(tokenString string) (string, error) {
 		return "", fmt.Errorf("claims Invalid")
 	}
 	return userID, nil
+}
+
+func HandleJWT(c *gin.Context) {
+	var user_id string
+	if err := c.ShouldBindJSON(&user_id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"errror": err,
+		})
+		return
+	}
+	token, err1 := GenerateJWT(user_id)
+	if err1 != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"errror": err1,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
 }

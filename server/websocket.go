@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/nyxoy77/websocket/auth"
 )
 
 //Upgrader is a struct we cant use its functions without it being stored in an instance
@@ -40,14 +41,13 @@ var hub = Hub{
 }
 
 func HandleWebSocketConnections(c *gin.Context) {
-	// token := c.Query("token")
-	// userID, err := auth.ValidateJWT(token)
-	// if err != nil || userID == "" {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{
-	// 		"error": "Invalid token",
-	// 	})
-	// }
-	userID := c.Query("userID")
+	token := c.Query("token")
+	userID, err := auth.ValidateJWT(token)
+	if err != nil || userID == "" {
+		c.String(http.StatusUnauthorized, "Invalid JWT")
+		return
+	}
+
 	if userID == "" {
 		c.String(http.StatusUnauthorized, "Missing userID")
 		return
@@ -66,7 +66,7 @@ func HandleWebSocketConnections(c *gin.Context) {
 
 func ReadMessages(client *Client) {
 	defer func() {
-		hub.Unregister <- client // remove the client when disconnected
+		hub.Unregister <- client
 		client.Conn.Close()
 	}()
 

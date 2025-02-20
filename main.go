@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/nyxoy77/websocket/auth"
 	"github.com/nyxoy77/websocket/server"
 )
 
@@ -16,6 +17,7 @@ func main() {
 	// Define WebSocket route
 
 	app.GET("/ws", server.HandleWebSocketConnections)
+	app.POST("/token", auth.HandleJWT)
 
 	// Start WebSocket hub
 	go server.RunHub()
