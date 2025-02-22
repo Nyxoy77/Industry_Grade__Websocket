@@ -1,5 +1,7 @@
 package server
 
+import "log"
+
 func RunHub() {
 	for {
 		select {
@@ -18,8 +20,13 @@ func RunHub() {
 				select {
 				case client.Send <- message:
 				default:
-					delete(hub.Clients, client.ID)
-					close(client.Send)
+					log.Println("Socket unresponsive ", client.ID, "Approval for removing")
+					go func(c *Client) {
+						hub.mu.Lock()
+						delete(hub.Clients, client.ID)
+						close(client.Send)
+						hub.mu.Unlock()
+					}(client)
 				}
 			}
 			hub.mu.Unlock()

@@ -49,10 +49,6 @@ func HandleWebSocketConnections(c *gin.Context) {
 		return
 	}
 
-	// if userID == "" {
-	// 	c.String(http.StatusUnauthorized, "Missing userID")
-	// 	return
-	// }
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println("Error upgrading the websocket ", err)
