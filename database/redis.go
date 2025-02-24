@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/go-redis/redis/v8"
@@ -18,5 +17,5 @@ func InitRedis() {
 	if err := redisClient.Ping(ctx).Err(); err != nil {
 		log.Fatal("Failed to connect to Redis:", err)
 	}
-	fmt.Println("Connected to Redis!")
+	// fmt.Println("Connected to Redis!")
 }
