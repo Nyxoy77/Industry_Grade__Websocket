@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"sync"
 
+	"slices"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/nyxoy77/websocket/auth"
@@ -13,9 +15,18 @@ import (
 
 //Upgrader is a struct we cant use its functions without it being stored in an instance
 
+// var upgrader = websocket.Upgrader{
+// 	CheckOrigin: func(r *http.Request) bool {
+// 		return true // allow all connections to connect not recommended in prod
+// 	},
+// }
+
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true // allow all connections to connect not recommended in prod
+		origin := r.Header.Get("Origin")
+		allowedOrigins := []string{"http://localhost:3000", "https://myapp.com"}
+
+		return slices.Contains(allowedOrigins, origin) // Reject if origin is not in the list
 	},
 }
 
